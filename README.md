@@ -9,9 +9,38 @@ Terminal chat app for Ollama with local Wikipedia integration via Kiwix.
 - Clickable hyperlinks that open Wikipedia articles
 - Commands: `/help`, `/exit`, `/clear`, `/wiki <query>`, `/view <query>`
 
-## Complete Setup Guide
+## Quick Start (Automated Setup)
 
-Follow these steps in order to set up everything from scratch.
+**Easiest way to get started:**
+
+```bash
+# Clone the repository
+git clone git@github.com:imDelivered/OWRs.git
+cd OWRs
+
+# Run the automated setup script
+chmod +x setup.sh
+./setup.sh
+```
+
+The setup script will automatically:
+- Install Python 3 and dependencies
+- Install Ollama
+- Install Kiwix tools
+- Set up everything needed
+
+After setup completes, just run:
+```bash
+./run_wiki_chat.sh
+```
+
+The launcher will automatically start Ollama, download a model if needed, and launch the chat interface.
+
+---
+
+## Complete Setup Guide (Manual)
+
+If you prefer to set up manually, follow these steps:
 
 ### Step 1: Install Python and Basic Tools
 
