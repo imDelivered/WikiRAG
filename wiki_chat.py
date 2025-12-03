@@ -329,6 +329,12 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Disable automatic Wikipedia fetching for faster responses. Use /wiki manually when needed.",
     )
+    parser.add_argument(
+        "--zim-file",
+        type=str,
+        default=None,
+        help="Path to ZIM file to use (any language/content type). If not specified, auto-detects first .zim file found.",
+    )
     return parser.parse_args()
 
 
@@ -1073,9 +1079,18 @@ def _score_relevance(href: str, query: str) -> float:
     return min(score, 1.0)
 
 
-def _auto_start_kiwix() -> bool:
+# Module-level variable to store ZIM file path from CLI args
+_global_zim_file_path: Optional[str] = None
+
+
+def _auto_start_kiwix(zim_file_path: Optional[str] = None) -> bool:
     """Attempt to auto-start Kiwix server if not running.
-    Returns True if Kiwix is now available, False otherwise."""
+    Returns True if Kiwix is now available, False otherwise.
+    
+    Args:
+        zim_file_path: Optional path to ZIM file. If None, uses global _global_zim_file_path
+                      or auto-detects first .zim file found.
+    """
     import os
     import time
     import sys
@@ -1087,26 +1102,14 @@ def _auto_start_kiwix() -> bool:
     except Exception:
         pass
     
-    # Try to find ZIM file in common locations
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    possible_zim_paths = [
-        os.path.join(script_dir, "wikipedia_en_all_nopic_2025-07.zim"),
-        os.path.join(os.path.expanduser("~"), "wikipedia_en_all_nopic_2025-07.zim"),
-        "/usr/share/kiwix/wikipedia_en_all_nopic_2025-07.zim",
-    ]
+    # Use provided path, global path, or auto-detect
+    zim_file = zim_file_path or _global_zim_file_path
     
-    # Also search for any .zim file in these directories
-    search_dirs = [script_dir, os.path.expanduser("~"), "/usr/share/kiwix"]
-    
-    zim_file = None
-    # Check specific paths first
-    for path in possible_zim_paths:
-        if os.path.isfile(path):
-            zim_file = path
-            break
-    
-    # If not found, search for any .zim file
+    # If not specified, search for any .zim file in common locations
     if not zim_file:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        search_dirs = [script_dir, os.path.expanduser("~"), "/usr/share/kiwix"]
+        
         for search_dir in search_dirs:
             if os.path.isdir(search_dir):
                 try:
@@ -1137,7 +1140,10 @@ def _auto_start_kiwix() -> bool:
     
     # Start kiwix-serve
     try:
-        print(f"[kiwix] Auto-starting Kiwix server...", file=sys.stderr)
+        # Detect language for better UX
+        detected_lang = _detect_language_from_zim(zim_file)
+        lang_info = f" ({detected_lang})" if detected_lang else ""
+        print(f"[kiwix] Auto-starting Kiwix server{lang_info}...", file=sys.stderr)
         process = subprocess.Popen(
             ["kiwix-serve", "--port=8081", zim_file],
             stdout=subprocess.DEVNULL,
@@ -1150,7 +1156,8 @@ def _auto_start_kiwix() -> bool:
             time.sleep(1)
             try:
                 test_html = http_get(f"{KIWIX_BASE_URL}/")
-                print(f"[kiwix] ✓ Kiwix server auto-started successfully", file=sys.stderr)
+                lang_msg = f" with {detected_lang} content" if detected_lang else ""
+                print(f"[kiwix] ✓ Kiwix server auto-started successfully{lang_msg}", file=sys.stderr)
                 return True
             except Exception:
                 # Check if process is still running
@@ -1215,7 +1222,7 @@ def kiwix_search_first_href(query: str) -> Optional[str]:
                 kiwix_search_first_href._kiwix_checked = True
                 kiwix_search_first_href._kiwix_available = True
             else:
-                print(f"[kiwix] Start it manually with: kiwix-serve --port=8081 wikipedia_en_all_nopic_2025-07.zim", file=sys.stderr)
+                print(f"[kiwix] Start it manually with: kiwix-serve --port=8081 <path-to-zim-file>", file=sys.stderr)
                 kiwix_search_first_href._kiwix_checked = True
                 kiwix_search_first_href._kiwix_available = False
                 return None
@@ -4492,6 +4499,11 @@ def main() -> int:
     wiki_max_chars: int = args.wiki_max_chars
     detailed_mode: bool = bool(args.detailed)
     show_links: bool = not bool(args.no_links)
+    
+    # Set global ZIM file path if specified
+    global _global_zim_file_path
+    if args.zim_file:
+        _global_zim_file_path = args.zim_file
     
     # Check GPU availability for Ollama
     check_ollama_gpu()

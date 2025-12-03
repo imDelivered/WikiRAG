@@ -49,37 +49,23 @@ else
 fi
 
 # Start Kiwix server on 8081 if not running and ZIM exists
-# Search for ZIM file in multiple locations
+# Search for any .zim file in common directories (no hardcoded language)
 ZIM_FILE=""
 
-# Check specific paths first
-for path in \
-  "$SCRIPT_DIR/wikipedia_en_all_nopic_2025-07.zim" \
-  "$HOME/wikipedia_en_all_nopic_2025-07.zim" \
-  "/usr/share/kiwix/wikipedia_en_all_nopic_2025-07.zim"; do
-  if [ -f "$path" ]; then
-    ZIM_FILE="$path"
-    break
+# Search for any .zim file in common directories
+for dir in "$SCRIPT_DIR" "$HOME" "/usr/share/kiwix"; do
+  if [ -d "$dir" ]; then
+    # Use find to handle globs properly
+    found=$(find "$dir" -maxdepth 1 -name "*.zim" -type f 2>/dev/null | head -1)
+    if [ -n "$found" ] && [ -f "$found" ]; then
+      ZIM_FILE="$found"
+      break
+    fi
   fi
 done
 
-# If not found, search for any .zim file in common directories
+# If not found, try one more time with a broader search
 if [ -z "$ZIM_FILE" ]; then
-  for dir in "$SCRIPT_DIR" "$HOME" "/usr/share/kiwix"; do
-    if [ -d "$dir" ]; then
-      # Use find to handle globs properly
-      found=$(find "$dir" -maxdepth 1 -name "*.zim" -type f 2>/dev/null | head -1)
-      if [ -n "$found" ] && [ -f "$found" ]; then
-        ZIM_FILE="$found"
-        break
-      fi
-    fi
-  done
-fi
-
-# Debug: Show what we found (only if verbose or if not found)
-if [ -z "$ZIM_FILE" ]; then
-  # Try one more time with a broader search
   for dir in "$SCRIPT_DIR" "$HOME"; do
     if [ -d "$dir" ]; then
       # Search recursively up to 2 levels deep
@@ -142,6 +128,7 @@ if ! ollama list | awk '{print $1}' | grep -qx "llama3.2:1b"; then
   ollama pull llama3.2:1b
 fi
 
+# Pass all arguments (including --zim-file if provided) to Python script
 exec python3 "$SCRIPT_DIR/wiki_chat.py" --model llama3.2:1b "$@"
 
 

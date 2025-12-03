@@ -108,25 +108,34 @@ kiwix-serve --version
 
 ### Step 5: Download Wikipedia ZIM File
 
-The ZIM file contains the entire Wikipedia offline. This is optional but recommended.
+The ZIM file contains Wikipedia content offline. This is optional but recommended. **The app supports Wikipedia in any language** - not just English!
 
 **Browse and download from the official Kiwix Library:**
 👉 **[https://library.kiwix.org/](https://library.kiwix.org/)**
 
-Recommended files:
-- **Wikipedia (no images)**: `wikipedia_en_all_nopic_2025-07.zim` (~20GB)
-- **Simple English Wikipedia**: `wikipedia_en_simple_all_nopic_2025-07.zim` (~1.5GB, easier language)
+**Multi-language support:** You can use Wikipedia ZIM files in any language:
+- **English**: `wikipedia_en_all_nopic_2025-07.zim` (~20GB)
+- **Spanish**: `wikipedia_es_all_nopic_2025-07.zim` (~15GB)
+- **French**: `wikipedia_fr_all_nopic_2025-07.zim` (~18GB)
+- **German**: `wikipedia_de_all_nopic_2025-07.zim` (~20GB)
+- **Simple English**: `wikipedia_en_simple_all_nopic_2025-07.zim` (~1.5GB, easier language)
+- **Any other language** available in the Kiwix library
 
-Once downloaded, place the `.zim` file in your repo directory.
+**Other content types:** The app also works with other ZIM files (Wiktionary, Project Gutenberg, etc.)
+
+Once downloaded, place the `.zim` file in your repo directory, `~`, or `/usr/share/kiwix/`. The app will auto-detect it.
 
 **Or download directly via command line:**
 ```bash
 # Navigate to your repo directory
 cd /path/to/wiki-chat
 
-# Download Wikipedia ZIM file (no images, ~20GB)
-# This will take 30-60 minutes depending on your connection
+# Download Wikipedia ZIM file (any language, no images)
+# Example: English Wikipedia (~20GB)
 wget -c https://download.kiwix.org/zim/wikipedia/wikipedia_en_all_nopic_2025-07.zim
+
+# Example: Spanish Wikipedia (~15GB)
+wget -c https://download.kiwix.org/zim/wikipedia/wikipedia_es_all_nopic_2025-07.zim
 ```
 
 **Note:** The ZIM file can be large (~1.5 - 100GB). You can skip this step if you just want to test the chat without Wikipedia features. The app will work, but `/wiki` commands won't function.
@@ -195,6 +204,7 @@ Available options:
 - `--model NAME` - Use different Ollama model (default: dolphin-llama3)
 - `--detailed` - Start in detailed response mode
 - `--wiki-max-chars N` - Max characters per Wikipedia article (default: 4000)
+- `--zim-file PATH` - Specify path to ZIM file (any language/content type). If not specified, auto-detects first .zim file found.
 - `--no-stream` - Disable streaming output
 - `--no-links` - Disable hyperlink summary
 
@@ -229,11 +239,14 @@ If `/wiki` commands fail:
 # Check if Kiwix is running
 curl http://localhost:8081
 
-# Check if ZIM file exists
+# Check if ZIM file exists (any language)
 ls -lh *.zim
 
-# Start Kiwix manually
-kiwix-serve --port=8081 wikipedia_en_all_nopic_2025-07.zim
+# Start Kiwix manually (replace with your ZIM file path)
+kiwix-serve --port=8081 /path/to/your/wikipedia_XX_all_nopic_2025-07.zim
+
+# Or specify ZIM file when running the app
+python3 wiki_chat.py --zim-file /path/to/your/wikipedia_es_all_nopic_2025-07.zim
 ```
 
 ### Python/Tkinter Issues
@@ -290,8 +303,8 @@ python3 -c "import tkinter; print('OK')"
 # Terminal 1: Start Ollama
 ollama serve
 
-# Terminal 2: Start Kiwix (if you have ZIM file)
-kiwix-serve --port=8081 wikipedia_en_all_nopic_2025-07.zim
+# Terminal 2: Start Kiwix (if you have ZIM file, any language)
+kiwix-serve --port=8081 /path/to/your/wikipedia_XX_all_nopic_2025-07.zim
 
 # Terminal 3: Run the app
 python3 wiki_chat.py --model llama3.2:1b
