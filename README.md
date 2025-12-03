@@ -125,7 +125,7 @@ cd /path/to/wiki-chat
 wget -c https://download.kiwix.org/zim/wikipedia/wikipedia_en_all_nopic_2025-07.zim
 ```
 
-**Note:** The ZIM file is large (~20GB). You can skip this step if you just want to test the chat without Wikipedia features. The app will work, but `/wiki` commands won't function.
+**Note:** The ZIM file can be large (~1.5 - 100GB). You can skip this step if you just want to test the chat without Wikipedia features. The app will work, but `/wiki` commands won't function.
 
 ### Step 6: Get the Wiki Chat Code
 
