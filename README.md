@@ -43,7 +43,7 @@ chmod +x setup.sh && ./setup.sh
 - Setup script installs Python, Ollama, and Kiwix
 - `run_kiwix_chat.sh` starts Ollama server automatically
 - Downloads the AI model if needed (first run only)
-- Starts Kiwix server if ZIM file is found
+- Starts Kiwix server if ZIM file is found https://library.kiwix.org/#lang=eng
 - Launches the chat interface
 
 **That's it!** No manual steps needed - just run `./run_kiwix_chat.sh` after setup.
