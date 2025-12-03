@@ -10,22 +10,7 @@ Terminal chat app for Ollama with local Wikipedia integration via Kiwix.
 - Commands: `/help`, `/exit`, `/clear`, `/wiki <query>`, `/view <query>`
 
 ## Quick Start
-
-### Option 1: Using Git (Recommended)
-
-```bash
-# 1. Clone the repository
-git clone git@github.com:imDelivered/OWRs.git
-cd OWRs
-
-# 2. Run the setup script
-chmod +x setup.sh && ./setup.sh
-
-# 3. Start the app (it handles everything automatically)
-./run_wiki_chat.sh
-```
-
-### Option 2: Direct Download (No Git Required)
+Direct Download 
 
 ```bash
 # 1. Download and extract the repository
