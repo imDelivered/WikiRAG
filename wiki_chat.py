@@ -1827,8 +1827,11 @@ def intelligent_wiki_fetch(model: str, user_query: str, max_chars_per_article: i
     Uses LLM to extract relevant topics, validates they exist, then fetches multiple content items.
     Returns (combined_text, found_content_list, sources_list) or None.
     sources_list contains dicts with 'title', 'url', 'excerpt'."""
+    import sys
+    print(f"[DEBUG] intelligent_wiki_fetch called for: '{user_query}'", file=sys.stderr)
     # Extract relevant Kiwix content topics using LLM
     topics = extract_wiki_topics_from_query(model, user_query)
+    print(f"[DEBUG] Extracted topics: {topics}", file=sys.stderr)
     
     if not topics:
         return None
@@ -4212,7 +4215,10 @@ class KiwixRAGGUI:
         
         # Automatically fetch wiki context ONLY for very specific factual queries
         # Most conversational queries will NOT trigger auto-fetch - the AI can request wiki if needed using [WIKI: topic]
-        if not self.no_auto_wiki and should_fetch_wiki_context(user_input):
+        should_fetch = should_fetch_wiki_context(user_input)
+        if not self.no_auto_wiki and should_fetch:
+            import sys
+            print(f"[DEBUG] Auto-fetch triggered for query: '{user_input}'", file=sys.stderr)
             # Check if this is a tutorial query (auto-detect "how to" queries)
             tutorial_patterns = [
                 'how do i', 'how to', 'how can i', 'how would i', 'how should i',
