@@ -1269,21 +1269,27 @@ def kiwix_search_first_href(query: str) -> Optional[str]:
             best_query = search_query
             break
     
-    if best_href:
+    # Minimum relevance threshold - filter out low-relevance matches
+    MIN_RELEVANCE_THRESHOLD = 0.25
+    
+    if best_href and best_score >= MIN_RELEVANCE_THRESHOLD:
         print(f"[kiwix] Found match for '{query}' via '{best_query}' (relevance: {best_score:.2f}): {best_href}", file=sys.stderr)
         # Cache the result
         if CACHING_ENABLED:
             cache_search(query, best_href)
         return best_href
     
-    # Fallback to first result if all were duplicates
+    # Fallback to first result if all were duplicates, but only if above threshold
     if scored_results:
         best_score, best_href, best_query = scored_results[0]
-        print(f"[kiwix] Using first result for '{query}' (relevance: {best_score:.2f}): {best_href}", file=sys.stderr)
-        # Cache the result
-        if CACHING_ENABLED:
-            cache_search(query, best_href)
-        return best_href
+        if best_score >= MIN_RELEVANCE_THRESHOLD:
+            print(f"[kiwix] Using first result for '{query}' (relevance: {best_score:.2f}): {best_href}", file=sys.stderr)
+            # Cache the result
+            if CACHING_ENABLED:
+                cache_search(query, best_href)
+            return best_href
+        else:
+            print(f"[kiwix] No relevant match for '{query}' (best relevance: {best_score:.2f} < {MIN_RELEVANCE_THRESHOLD})", file=sys.stderr)
     
     # Cache None result (not found)
     if CACHING_ENABLED:
@@ -1370,8 +1376,9 @@ def extract_wiki_topics_from_query(model: str, user_query: str) -> List[str]:
             "4. Step-by-step components (each major step might need its own article)\n"
             "5. Safety/background information (if applicable)\n"
             "6. Related concepts that provide context\n\n"
-            "Extract 5-8 Wikipedia article names that together provide COMPLETE information to build the tutorial.\n"
-            "Think comprehensively - what does someone need to know to go from knowing nothing to completing this task?\n\n"
+            "Extract 4-6 Wikipedia article names that together provide COMPLETE information to build the tutorial.\n"
+            "Think comprehensively - what does someone need to know to go from knowing nothing to completing this task?\n"
+            "IMPORTANT: Only extract articles DIRECTLY related to the tutorial topic. Avoid tangential or unrelated topics.\n\n"
         )
     elif is_code_request:
         prompt += (
@@ -1475,8 +1482,8 @@ def extract_wiki_topics_from_query(model: str, user_query: str) -> List[str]:
                 cache_topics(user_query, result)
             return result
         
-        # Limit based on query type
-        max_topics = 8 if is_tutorial else 5
+        # Limit based on query type (reduced to prevent over-fetching)
+        max_topics = 6 if is_tutorial else 4
         result = topics[:max_topics] if topics else _fallback_topic_extraction(user_query)
         
         # Cache the result
@@ -1800,11 +1807,18 @@ def intelligent_wiki_fetch(model: str, user_query: str, max_chars_per_article: i
 
 def detect_missing_context(model: str, user_query: str, ai_response: str, existing_context: List[str]) -> List[str]:
     """Analyze AI response to detect missing concepts that need Wikipedia context.
-    Returns list of Wikipedia article names to fetch."""
+    Returns list of Wikipedia article names to fetch.
+    Enhanced with relevance filtering to prevent fetching irrelevant concepts."""
     # Build context summary for the LLM
     context_summary = ""
     if existing_context:
         context_summary = f"\n\nCurrent context includes: {', '.join(existing_context[:5])}"
+    
+    # Extract key terms from user query for relevance checking
+    query_keywords = set(re.findall(r'\b\w{4,}\b', user_query.lower()))
+    # Remove common stop words
+    stop_words = {'what', 'when', 'where', 'who', 'why', 'how', 'does', 'this', 'that', 'with', 'from', 'about', 'into', 'over', 'after', 'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use', 'install', 'install', 'on', 'the'}
+    query_keywords = query_keywords - stop_words
     
     prompt = (
         f"User asked: '{user_query}'\n\n"
@@ -1816,6 +1830,9 @@ def detect_missing_context(model: str, user_query: str, ai_response: str, existi
         "- Mentions of concepts that aren't explained\n"
         "- Vague statements that could be improved with specific knowledge\n"
         "- Technical terms or proper nouns that aren't defined\n\n"
+        "CRITICAL: Only extract Wikipedia article names that are DIRECTLY RELATED to the user's query. "
+        "DO NOT extract random concepts, unrelated topics, or things mentioned in passing. "
+        "The extracted articles must help answer the SPECIFIC question asked by the user.\n\n"
         "Extract 2-4 specific Wikipedia article names that would help the AI give a better answer. "
         "Return ONLY article names, one per line, no explanations.\n\n"
         "If the response seems complete and confident, return 'NONE'.\n"
@@ -1839,7 +1856,27 @@ def detect_missing_context(model: str, user_query: str, ai_response: str, existi
             line = line.strip('"\'')
             line = line.strip()
             if line and len(line) > 2 and line.upper() != "NONE":
-                topics.append(line)
+                # Filter by relevance to original query
+                line_lower = line.lower()
+                line_words = set(re.findall(r'\b\w{4,}\b', line_lower))
+                line_words = line_words - stop_words
+                
+                # Check if topic is relevant to query
+                if query_keywords:
+                    # Calculate relevance: shared keywords
+                    shared = query_keywords & line_words
+                    relevance = len(shared) / max(len(query_keywords), 1)
+                    
+                    # Also check if query keywords appear in the topic name
+                    topic_contains_query = any(kw in line_lower for kw in query_keywords if len(kw) > 3)
+                    query_contains_topic = any(word in user_query.lower() for word in line_words if len(word) > 3)
+                    
+                    # Only include if relevant (shared keywords or contains query terms)
+                    if relevance > 0.1 or topic_contains_query or query_contains_topic:
+                        topics.append(line)
+                else:
+                    # If no keywords extracted, include it (fallback)
+                    topics.append(line)
         
         return topics[:4]  # Limit to 4 missing concepts
     except Exception:
@@ -1877,9 +1914,10 @@ def recursive_context_augmentation(
     is_tutorial = any(pattern in user_query.lower() for pattern in tutorial_patterns) or user_query.lower().startswith("/tutorial")
     
     # For tutorials, increase iterations and total chars to get comprehensive coverage
+    # But limit to prevent runaway fetching
     if is_tutorial:
-        max_iterations = max(max_iterations, 4)  # At least 4 iterations for tutorials
-        max_total_chars = max(max_total_chars, 20000)  # More context for complete tutorials
+        max_iterations = min(max(max_iterations, 3), 4)  # At most 4 iterations for tutorials
+        max_total_chars = min(max(max_total_chars, 15000), 20000)  # Cap at 20k chars
     
     fetched_articles: List[str] = []
     all_context_parts: List[str] = []
@@ -1965,9 +2003,37 @@ Return ONLY article names, one per line, or 'NONE' if you have enough informatio
             if not missing:
                 break
             
-            # Fetch missing concepts
-            new_articles_fetched = False
+            # Filter missing concepts by relevance to original query
+            query_keywords = set(re.findall(r'\b\w{4,}\b', user_query.lower()))
+            stop_words = {'what', 'when', 'where', 'who', 'why', 'how', 'does', 'this', 'that', 'with', 'from', 'about', 'into', 'over', 'after', 'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use', 'install', 'on', 'the'}
+            query_keywords = query_keywords - stop_words
+            
+            relevant_missing = []
             for concept in missing:
+                concept_lower = concept.lower()
+                concept_words = set(re.findall(r'\b\w{4,}\b', concept_lower))
+                concept_words = concept_words - stop_words
+                
+                # Check relevance
+                if query_keywords:
+                    shared = query_keywords & concept_words
+                    relevance = len(shared) / max(len(query_keywords), 1)
+                    topic_contains_query = any(kw in concept_lower for kw in query_keywords if len(kw) > 3)
+                    query_contains_topic = any(word in user_query.lower() for word in concept_words if len(word) > 3)
+                    
+                    if relevance > 0.15 or topic_contains_query or query_contains_topic:
+                        relevant_missing.append(concept)
+                else:
+                    # Fallback: include if it's not obviously unrelated
+                    relevant_missing.append(concept)
+            
+            if not relevant_missing:
+                # No relevant missing concepts, stop
+                break
+            
+            # Fetch missing concepts (limit to prevent runaway fetching)
+            new_articles_fetched = False
+            for concept in relevant_missing[:3]:  # Limit to 3 per iteration
                 if concept in fetched_set:
                     continue
                 
