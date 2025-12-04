@@ -1,0 +1,15 @@
+# Kiwix RAG Python Dependencies
+
+# Core dependencies
+requests>=2.31.0
+
+# RAG system dependencies (same models as Perplexica)
+sentence-transformers>=2.2.0
+chromadb>=0.4.0
+
+# Cross-encoder reranking (BGE reranker - same as Perplexica)
+sentence-transformers[cross-encoder]>=2.2.0
+
+# Optional: For better keyword search in hybrid mode
+# rank-bm25>=0.2.2
+

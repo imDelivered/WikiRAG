@@ -40,11 +40,17 @@ chmod +x setup.sh && ./setup.sh
 ```
 
 **What happens automatically:**
-- Setup script installs Python, Ollama, and Kiwix
+- Setup script installs Python, Ollama, Kiwix, and **RAG dependencies** (sentence-transformers, chromadb)
+- **Embedding models (BGE) are ready** - same models used by Perplexica
 - `run_kiwix_chat.sh` starts Ollama server automatically
 - Downloads the AI model if needed (first run only)
 - Starts Kiwix server if ZIM file is found https://library.kiwix.org/#lang=eng
 - Launches the chat interface
+
+**To enable RAG (semantic search):**
+1. Download a ZIM file from https://library.kiwix.org/ and place it in the repo directory
+2. Build the index: `python3 kiwix_chat.py --build-index`
+3. That's it! RAG will work automatically after indexing (one-time setup, may take time)
 
 **That's it!** No manual steps needed - just run `./run_kiwix_chat.sh` after setup.
 
@@ -142,6 +148,17 @@ The ZIM file contains educational content offline. This is optional but recommen
 
 Once downloaded, place the `.zim` file in your repo directory, `~`, or `/usr/share/kiwix/`. The app will auto-detect it.
 
+**After downloading a ZIM file, build the RAG index:**
+```bash
+# Build the vector index (one-time setup, may take time)
+python3 kiwix_chat.py --build-index
+
+# This creates embeddings for semantic search using BGE models (same as Perplexica)
+# The index will be used automatically for all future queries
+```
+
+**Note:** The index build is a one-time process. It processes articles and creates embeddings for semantic search. This may take 30 minutes to several hours depending on the ZIM file size. You can interrupt and resume later - progress is saved.
+
 **Or download directly via command line:**
 ```bash
 # Navigate to your repo directory
@@ -224,6 +241,11 @@ Available options:
 - `--zim-file PATH` - Specify path to ZIM file (any language/content type). If not specified, auto-detects first .zim file found.
 - `--no-stream` - Disable streaming output
 - `--no-links` - Disable hyperlink summary
+- `--build-index` - Build RAG vector index from ZIM file (one-time setup)
+- `--rebuild-index` - Rebuild RAG index (if ZIM file changed)
+- `--index-status` - Check RAG index status
+- `--rag-status` - Show full RAG system status (models, index, etc.)
+- `--use-rag` / `--no-rag` - Enable/disable RAG (default: enabled if index exists)
 
 ## Troubleshooting
 

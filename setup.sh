@@ -35,8 +35,15 @@ echo "✓ Python $PYTHON_VERSION installed"
 
 # Step 3: Install Python dependencies
 echo "[3/6] Installing Python dependencies..."
-python3 -m pip install --user requests > /dev/null 2>&1 || true
-echo "✓ Python dependencies installed"
+# Try --user first, fall back to --break-system-packages if needed
+if ! python3 -m pip install --user requests sentence-transformers chromadb > /dev/null 2>&1; then
+    echo "  Note: Using --break-system-packages flag (externally-managed-environment detected)"
+    python3 -m pip install --break-system-packages requests sentence-transformers chromadb > /dev/null 2>&1 || {
+        echo "  Warning: Failed to install some dependencies. You may need to install manually:"
+        echo "    pip3 install --break-system-packages sentence-transformers chromadb"
+    }
+fi
+echo "✓ Python dependencies installed (including RAG dependencies: sentence-transformers, chromadb)"
 
 # Step 4: Install Ollama
 echo "[4/6] Installing Ollama..."
@@ -74,6 +81,13 @@ echo "  • Start Ollama server"
 echo "  • Download the AI model (if needed)"
 echo "  • Start Kiwix server (if ZIM file found)"
 echo "  • Launch the chat interface"
+echo ""
+echo "RAG System Setup:"
+echo "  • Embedding models (BGE) are ready to use"
+echo "  • To enable RAG: Download a ZIM file from https://library.kiwix.org/"
+echo "  • Place the .zim file in this directory"
+echo "  • Build the index: python3 kiwix_chat.py --build-index"
+echo "  • This creates embeddings for semantic search (one-time, may take time)"
 echo ""
 echo "Optional: Download Wikipedia ZIM file from https://library.kiwix.org/"
 echo "          Place it in this directory to enable Wikipedia features."

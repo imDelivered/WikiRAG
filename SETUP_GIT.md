@@ -7,7 +7,7 @@ Follow these steps to push your code to GitHub.
 ### Step 1: Initialize Git
 
 ```bash
-cd "/home/dekko/Desktop/public repo"
+cd "/path/to/your/repo"
 git init
 git add .
 git commit -m "Initial commit: Wiki Chat with RAG"
@@ -72,7 +72,7 @@ ssh -T git@github.com
 ### Step 5: Initialize and push
 
 ```bash
-cd "/home/dekko/Desktop/public repo"
+cd "/path/to/your/repo"
 git init
 git add .
 git commit -m "Initial commit: Wiki Chat with RAG"
@@ -86,7 +86,7 @@ git push -u origin main
 If you already have a personal access token:
 
 ```bash
-cd "/home/dekko/Desktop/public repo" && \
+cd "/path/to/your/repo" && \
 git init && \
 git add . && \
 git commit -m "Initial commit: Wiki Chat with RAG" && \

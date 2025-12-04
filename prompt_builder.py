@@ -3,6 +3,13 @@
 
 from typing import Optional, List, Dict
 
+# Import ZIM content type detection
+try:
+    from kiwix_chat.kiwix.client import get_zim_content_description
+except ImportError:
+    def get_zim_content_description() -> str:
+        return 'Kiwix content'
+
 
 def build_system_prompt(query: str, wiki_context: Optional[Dict] = None) -> str:
     """
@@ -43,6 +50,7 @@ def build_system_prompt(query: str, wiki_context: Optional[Dict] = None) -> str:
         sources = wiki_context.get('sources', [])
         source_names = [s.get('title', s.get('name', 'Unknown')) for s in sources]
         
+        content_type = get_zim_content_description()
         citation_section = f"""
 ╔══════════════════════════════════════════════════════════════╗
 ║  KIWIX CONTENT SOURCES - YOU MUST CITE THESE                 ║
@@ -56,7 +64,7 @@ CITATION RULE: After EVERY factual claim, add [Source: Content_Name]
 Example: "The ISS orbits at 408km altitude [Source: International_Space_Station]"
 
 NOTE: Kiwix content context will be provided in the system message below. 
-Kiwix provides offline access to Wikipedia, Wiktionary, Project Gutenberg, and other educational content.
+Kiwix provides offline access to {content_type}.
 Read it carefully and extract facts from it.
 
 """
@@ -269,7 +277,8 @@ Don't hold back on details. Assume they want to understand every nuance.
     verification_section = ""
     
     # Build complete prompt
-    prompt = f"""You are an expert AI assistant with access to Kiwix content (Wikipedia, Wiktionary, Project Gutenberg, and other educational resources).
+    content_type = get_zim_content_description()
+    prompt = f"""You are an expert AI assistant with access to Kiwix content ({content_type}).
 
 {medical_section}
 
