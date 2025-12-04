@@ -65,14 +65,26 @@ def stream_iterative_rag_response(
         yield from ollama_stream_chat(model, messages)
         return
     
-    # Check if index exists
+    # Check if index exists, build automatically if missing
     from kiwix_chat.rag.vector_store import is_indexed
+    from kiwix_chat.rag.indexer import build_index
+    
     if not is_indexed(zim_file_path):
-        print(f"[iterative-rag] RAG index not found for ZIM file", file=sys.stderr)
-        print(f"[iterative-rag] Build the index first: python3 kiwix_chat.py --build-index", file=sys.stderr)
-        print(f"[iterative-rag] Using normal generation (no RAG)", file=sys.stderr)
-        yield from ollama_stream_chat(model, messages)
-        return
+        print(f"[iterative-rag] RAG index not found - building automatically...", file=sys.stderr)
+        print(f"[iterative-rag] This is a one-time setup (may take 30+ minutes for large ZIM files)", file=sys.stderr)
+        print(f"[iterative-rag] You can interrupt with Ctrl+C and resume later", file=sys.stderr)
+        try:
+            build_index(zim_file_path, show_progress=True)
+            print(f"[iterative-rag] Index build complete! Continuing with RAG...", file=sys.stderr)
+        except KeyboardInterrupt:
+            print(f"\n[iterative-rag] Index build interrupted. Using normal generation (no RAG)", file=sys.stderr)
+            yield from ollama_stream_chat(model, messages)
+            return
+        except Exception as e:
+            print(f"[iterative-rag] Index build failed: {e}", file=sys.stderr)
+            print(f"[iterative-rag] Using normal generation (no RAG)", file=sys.stderr)
+            yield from ollama_stream_chat(model, messages)
+            return
     
     # Initial retrieval
     try:
