@@ -25,7 +25,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     except RuntimeError as e:
-        print(f"Error: {e}", file=sys.stderr)
+        # Error already handled by GUI, no need to print to terminal
         sys.exit(1)
 
 

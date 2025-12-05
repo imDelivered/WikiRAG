@@ -8,19 +8,11 @@ cd "$SCRIPT_DIR"
 
 # Check if Ollama is running
 if ! curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
-    echo "Starting Ollama server..."
     # Start Ollama in background if not running
     if ! pgrep -x ollama > /dev/null; then
         ollama serve > /dev/null 2>&1 &
         OLLAMA_PID=$!
-        echo "Waiting for Ollama to start..."
         sleep 3
-        
-        # Check if it started successfully
-        if ! curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
-            echo "Warning: Ollama may not have started properly."
-            echo "Try running 'ollama serve' manually in another terminal."
-        fi
     fi
 fi
 
@@ -33,6 +25,6 @@ else
     PYTHON_CMD="python3"
 fi
 
-# Launch chatbot GUI
-"$PYTHON_CMD" "$SCRIPT_DIR/run_chatbot.py" "$@"
+# Launch chatbot GUI (suppress terminal output)
+"$PYTHON_CMD" "$SCRIPT_DIR/run_chatbot.py" "$@" > /dev/null 2>&1
 
