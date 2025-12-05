@@ -90,7 +90,13 @@ else
     fi
 fi
 
-# Step 6: Make scripts executable and install chatbot command
+# Step 5c: Enable Ollama Service
+if command -v systemctl > /dev/null 2>&1; then
+    echo "Enabling Ollama service..."
+    sudo systemctl enable --now ollama > /dev/null 2>&1 || true
+fi
+
+# Step 6: Make scripts executable and install krag command
 echo "[6/6] Setting up scripts..."
 chmod +x chatbot.py 2>/dev/null || true
 chmod +x run_chatbot.sh 2>/dev/null || true
@@ -98,13 +104,13 @@ chmod +x setup.sh 2>/dev/null || true
 chmod +x build_index.py 2>/dev/null || true
 echo "✓ Scripts made executable"
 
-# Install chatbot command
+# Install krag command
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CHATBOT_WRAPPER="/usr/local/bin/chatbot"
+KRAG_WRAPPER="/usr/local/bin/krag"
 
-sudo tee "$CHATBOT_WRAPPER" > /dev/null << CHATBOT_EOF
+sudo tee "$KRAG_WRAPPER" > /dev/null << KRAG_EOF
 #!/usr/bin/env bash
-# chatbot command wrapper
+# krag command wrapper
 
 INSTALL_DIR="$SCRIPT_DIR"
 
@@ -114,22 +120,22 @@ else
     echo "Error: Could not find run_chatbot.sh at \$INSTALL_DIR"
     exit 1
 fi
-CHATBOT_EOF
+KRAG_EOF
 
-sudo chmod +x "$CHATBOT_WRAPPER"
-echo "✓ chatbot command installed to /usr/local/bin/chatbot"
+sudo chmod +x "$KRAG_WRAPPER"
+echo "✓ 'krag' command installed to /usr/local/bin/krag"
 
 echo ""
 echo "=== Setup Complete! ==="
 echo ""
-echo "Everything is ready! You can now run:"
+echo "Everything is ready! You can now launch the app by running:"
 echo ""
-echo "  chatbot"
+echo "  krag"
 echo ""
 echo "IMPORTANT: To enable offline AI with Wikipedia:"
 echo "1. Ensure you have a ZIM file (e.g., wikipedia_en_all_maxi_2025-08.zim)"
 echo "2. Run the chatbot:"
-echo "   chatbot"
+echo "   krag"
 echo ""
 echo "Make sure Ollama is running:"
 echo "  ollama serve"
