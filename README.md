@@ -1,4 +1,4 @@
-# Kiwix RAG (work in progress)
+# Kiwix RAG
 
 Universal terminal chat app for Ollama with local Kiwix content integration. Features Retrieval Augmented Generation (RAG) for enhanced factual responses.
 
@@ -35,24 +35,25 @@ cd OWRs-main
 # 2. Run the setup script
 chmod +x setup.sh && ./setup.sh
 
-# 3. Start the app (it handles everything automatically)
-./run_kiwix_chat.sh
+# 3. Start the app from anywhere using the 'krag' command
+krag
 ```
 
 **What happens automatically:**
 - Setup script installs Python, Ollama, Kiwix, and **RAG dependencies** (sentence-transformers, chromadb)
 - **Embedding models (BGE) are ready** - same models used by Perplexica
-- `run_kiwix_chat.sh` starts Ollama server automatically
+- Setup installs the `krag` command system-wide - you can run it from any directory!
+- `krag` (or `./run_kiwix_chat.sh`) starts Ollama server automatically
 - Downloads the AI model if needed (first run only)
 - Starts Kiwix server if ZIM file is found https://library.kiwix.org/#lang=eng
 - Launches the chat interface
 
 **To enable RAG (semantic search):**
 1. Download a ZIM file from https://library.kiwix.org/ and place it in the repo directory
-2. Build the index: `python3 kiwix_chat.py --build-index`
+2. Build the index: `krag --build-index` (or `python3 kiwix_chat.py --build-index`)
 3. That's it! RAG will work automatically after indexing (one-time setup, may take time)
 
-**That's it!** No manual steps needed - just run `./run_kiwix_chat.sh` after setup.
+**That's it!** No manual steps needed - just run `krag` from anywhere after setup.
 
 ---
 
@@ -187,13 +188,18 @@ cd /path/to/wiki-chat
 
 ### Step 7: Run the App
 
-Make the launcher executable:
+After running `setup.sh`, you can start the app in two ways:
+
+**Option 1: Use the `krag` command (recommended)**
 ```bash
-chmod +x run_kiwix_chat.sh
+# Run from anywhere - the 'krag' command is installed system-wide
+krag
 ```
 
-Run it:
+**Option 2: Use the launcher script**
 ```bash
+# From the project directory
+chmod +x run_kiwix_chat.sh
 ./run_kiwix_chat.sh
 ```
 
@@ -231,6 +237,10 @@ AI: [Provides detailed answer with Wikipedia context if available]
 
 Run with custom settings:
 ```bash
+# Using the krag command
+krag --model llama3.2:1b --detailed --wiki-max-chars 6000
+
+# Or using the Python script directly
 python3 kiwix_chat.py --model llama3.2:1b --detailed --wiki-max-chars 6000
 ```
 
@@ -332,7 +342,12 @@ python3 -c "import tkinter; print('OK')"
 
 ## Quick Reference
 
-**Start everything:**
+**Start everything (recommended):**
+```bash
+krag
+```
+
+**Or from project directory:**
 ```bash
 ./run_kiwix_chat.sh
 ```
@@ -346,7 +361,26 @@ ollama serve
 kiwix-serve --port=8081 /path/to/your/wikipedia_XX_all_nopic_2025-07.zim
 
 # Terminal 3: Run the app
-python3 kiwix_chat.py --model llama3.2:1b
+krag --model llama3.2:1b
+# Or: python3 kiwix_chat.py --model llama3.2:1b
 ```
+
+## Uninstalling
+
+To remove Kiwix RAG and its components:
+
+```bash
+# Run the uninstaller (GUI with checkboxes)
+./uninstall.sh
+```
+
+The uninstaller allows you to selectively remove:
+- `krag` command
+- Python packages (requests, sentence-transformers, chromadb, tiktoken)
+- Ollama installation
+- Kiwix tools
+- Downloaded AI model (llama3.2:1b) - with confirmation prompt
+
+**Note:** The uninstaller only removes components installed by `setup.sh`. Your project directory, ZIM files, and RAG indexes are preserved.
 
 That's it! You're ready to chat with AI + Wikipedia.
