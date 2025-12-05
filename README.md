@@ -1,4 +1,4 @@
-# KiwixRAG Chatbot
+# KiwixRAG
 
 A powerful offline-capable chatbot with **Retrieval-Augmented Generation (RAG)** that lets you chat with AI using local knowledge bases like Wikipedia, Python documentation, or any ZIM file archive.
 
