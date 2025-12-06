@@ -6,6 +6,18 @@ A powerful offline-capable chatbot with **Retrieval-Augmented Generation (RAG)**
 
 ---
 
+## ⚠️ Important Warning
+
+**This AI system can and will make things up.** Even with RAG (Retrieval-Augmented Generation), the language model may:
+- Generate incorrect or fabricated information
+- Hallucinate facts, dates, or details
+- Mix real information with made-up content
+- Provide confident-sounding but inaccurate answers
+
+**Always verify important information from authoritative sources.** Do not rely solely on this system for critical decisions, medical advice, legal information, or any situation where accuracy is essential.
+
+---
+
 ## Disclaimer
 
 ```
@@ -22,6 +34,7 @@ A powerful offline-capable chatbot with **Retrieval-Augmented Generation (RAG)**
 │ • Ethical use of AI technology                               │
 │ • Content generated or accessed through this software        │
 │ • Any actions taken based on information from this software  │
+│ • Verifying the accuracy of AI-generated content            │
 │                                                              │
 │ By using this software, you agree to use it responsibly and  │
 │ accept full liability for your actions.                      │
@@ -54,7 +67,9 @@ A powerful offline-capable chatbot with **Retrieval-Augmented Generation (RAG)**
 > 2. System searches ZIM archive using hybrid search
 > 3. Retrieves most relevant text chunks
 > 4. Augments AI context with retrieved information
-> 5. Generates accurate, source-cited responses
+> 5. Generates responses that may include source citations
+>
+> **⚠️ Important:** This system uses AI language models that can generate incorrect information, make things up, or hallucinate. Even with RAG, responses may not always be factual or accurate. Always verify important information from authoritative sources.
 
 ### Components
 
@@ -248,6 +263,8 @@ DEFAULT_MODEL = "llama3.2:1b"  # Change to your preferred model
 │ • Educational Tool     │ Learn from offline encyclopedias    │
 └──────────────────────────────────────────────────────────────┘
 ```
+
+> **Note:** While this system can help explore knowledge bases, remember that AI responses may contain errors or fabricated information. Always cross-reference important facts with authoritative sources.
 
 ---
 
