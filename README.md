@@ -6,7 +6,7 @@ A powerful offline-capable chatbot with **Retrieval-Augmented Generation (RAG)**
 
 ---
 
-## Quick Setup
+## Quick Setup 𓆝 𓆟 𓆞 𓆝 𓆟
 
 ### Prerequisites
 
