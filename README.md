@@ -122,7 +122,8 @@ Or run manually:
 ```bash
 ./run_chatbot.sh
 ```
-<img width="898" height="698" alt="Screenshot_20251205_131420" src="https://github.com/user-attachments/assets/7a50c740-046c-495f-8033-e61c6e5d2b3b" />
+<img width="895" height="700" alt="Screenshot_20251205_173826" src="https://github.com/user-attachments/assets/f4509a75-dd30-4344-af13-f1a5d5c293b6" />
+
 
 ---
 
