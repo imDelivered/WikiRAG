@@ -6,3 +6,5 @@ shared_models/
 data/index/
 *.log
 .DS_Store
+.github_deploy_key
+.github_deploy_key.pub

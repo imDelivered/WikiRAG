@@ -81,7 +81,7 @@ def local_inference(model: str, prompt: str, temperature: float = 0.0, timeout: 
     Run local inference using ModelManager.
     """
     try:
-        llm = ModelManager.get_model(model, n_ctx=2048)  # Shared instance
+        llm = ModelManager.get_model(model, n_ctx=8192)  # Shared instance
         
         # Use chat completion for instruction-tuned models
         response = llm.create_chat_completion(

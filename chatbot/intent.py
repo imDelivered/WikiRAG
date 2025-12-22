@@ -83,6 +83,14 @@ def detect_intent(query: str) -> IntentResult:
     debug_print("Decision: should_retrieve=True (factual mode)")
     return IntentResult(
         should_retrieve=True,
-        system_instruction="\nMODE: FACTUAL\nProvide a direct, accurate answer based strictly on the retrieved context.",
+        system_instruction=(
+            "\nMODE: FACTUAL REASONING\n"
+            "OBJECTIVE: Provide a single, concise answer. If sources conflict, report the conflict neutrally.\n"
+            "LAYOUT RULES:\n"
+            "1. DIRECT ANSWER: Start directly with the answer.\n"
+            "2. REPORT CONFLICTS: If sources disagree (e.g. Source A says X, Source B says Y), state BOTH. Do NOT try to resolve it.\n"
+            "3. NO ARGUMENTATION: Do not debate with yourself (e.g. 'But wait...', 'However...'). just list the facts.\n"
+            "4. NO REPETITION: State the facts once and STOP. Do NOT summarize at the end."
+        ),
         mode_name="FACTUAL"
     )

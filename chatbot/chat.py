@@ -45,7 +45,8 @@ def stream_chat(model: str, messages: List[dict]) -> Iterable[str]:
         stream = llm.create_chat_completion(
             messages=messages,
             stream=True,
-            temperature=0.7, # Higher temp for creative chat
+            temperature=0.3, # Lower temp for more focused answers
+            repeat_penalty=1.2, # Stronger penalty to prevent "But wait" loops
             max_tokens=None  # Allow full generation
         )
         
@@ -74,7 +75,8 @@ def full_chat(model: str, messages: List[dict]) -> str:
         resp = llm.create_chat_completion(
             messages=messages,
             stream=False,
-            temperature=0.7
+            temperature=0.3,
+            repeat_penalty=1.2
         )
         
         return resp['choices'][0]['message']['content']
@@ -229,29 +231,13 @@ def build_messages(system_prompt: str, history: List[Message], user_query: str =
                         context_text += f"- {fact}\n"
                     context_text += "======================================================\n"
 
-                context_text += f"\n\nCRITICAL INSTRUCTIONS FOR PROCESSING CONTEXT:\n" \
-                                f"STEP 0 - USE VERIFIED FACTS: The 'VERIFIED FACTUAL DETAILS' section contains specific information extracted for this query. Prioritize these details.\n" \
-                                f"STEP 1 - IDENTIFY THE QUESTION TYPE: Determine what specific fact or information is requested.\n" \
-                                f"  - For factual questions (who/what/when/where): Look for direct statements or clear implications.\n" \
-                                f"  - For descriptive questions: Synthesize information from multiple sources when available.\n" \
-                                f"\n" \
-                                f"STEP 2 - SEARCH SOURCES: Carefully scan all provided context for the answer.\n" \
-                                f"  - Look for direct statements (e.g., 'Paris is the capital of France').\n" \
-                                f"  - Also recognize equivalent phrasings (e.g., 'the capital is Paris' or 'France's capital, Paris').\n" \
-                                f"  - Pay attention to context to avoid confusion (e.g., 'capital' meaning city vs. financial capital).\n" \
-                                f"\n" \
-                                f"STEP 3 - EXTRACT or REFUSE:\n" \
-                                f"  - If the answer is directly stated OR clearly implied by the context: Extract and provide it.\n" \
-                                f"  - You may infer when the inference is obvious (e.g., if text says 'Paris is the capital of France', this answers 'What is the capital of France?').\n" \
-                                f"  - If the context discusses the topic but does NOT contain information that answers the specific question: Refuse.\n" \
-                                f"  - DO NOT use external knowledge beyond what's in the provided context.\n" \
-                                f"  - DO NOT guess or make up facts.\n" \
-                                f"\n" \
-                                f"STEP 4 - RESPOND:\n" \
-                                f"  - If the answer is found: Provide a clear, direct answer and cite the source(s).\n" \
-                                f"  - If NOT found: Explicitly state 'I do not have enough information in the provided context to answer this question.'\n" \
-                                f"\n" \
-                                f"REMEMBER: Balance accuracy with helpfulness. Answer when context clearly supports it, but refuse when it doesn't."
+                context_text += f"\n\nCRITICAL INSTRUCTIONS:\n" \
+                                f"1. USE THE CONTEXT: Answer based ONLY on the provided context above.\n" \
+                                f"2. BE ACCURATE: Do not make up facts. If the answer isn't there, say 'I don't know' and STOP.\n" \
+                                f"3. HANDLE CONFLICTS: If context has conflicting info, state BOTH sides. Do NOT debate yourself (e.g. 'But wait').\n" \
+                                f"4. NO REPETITION: State your answer ONCE and STOP. Do NOT add a summary or 'Therefore' conclusion.\n" \
+                                f"5. FOLLOW LAYOUT RULES: See the MODE instructions below for how to format your answer.\n" \
+                                f"6. IGNORE IRRELEVANT TEXT: The context may contain unrelated articles. Focus only on what answers the question."
                 debug_print(f"Context assembled: {len(context_text)} chars total")
             else:
                 debug_print("No results returned from RAG")
