@@ -9,6 +9,9 @@ echo ""
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# Cleanup artifacts (prevent stale bytecode issues)
+find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+
 # Check sudo access (for system packages)
 if ! sudo -n true 2>/dev/null; then
     echo "Note: Sudo access required for system packages (python3, libzim)."

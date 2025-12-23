@@ -32,6 +32,7 @@ class ModelManager:
         project_root = os.path.dirname(current_dir)
         model_dir = os.path.join(project_root, "shared_models")
         os.makedirs(model_dir, exist_ok=True)
+        print(f"DEBUG: Initializing model directory at: {model_dir}")
         
         # 1. Check if we already have a suitable file for this repo
         # We store them as "RepoName-Quant.gguf" or just rely on huggingface cache
