@@ -3,7 +3,7 @@
 OLLAMA_CHAT_URL = "N/A" # Deprecated
 # Local Model Repositories
 MODEL_ALETHEIA_3B = "Ishaanlol/Aletheia-Llama-3.2-3B" 
-MODEL_DARKIDOL_8B = "DavidAU/Llama-3.1-DeepSeek-8B-DarkIdol-Instruct-1.2-Uncensored-GGUF"
+
 
 DEFAULT_MODEL = MODEL_ALETHEIA_3B
 STRICT_RAG_MODE = True

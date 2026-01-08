@@ -430,8 +430,7 @@ class ChatbotGUI:
         models: List[Tuple[str, ModelPlatform]] = []
         
         # Add models from config
-        if hasattr(config, 'MODEL_DARKIDOL_8B'):
-            models.append((config.MODEL_DARKIDOL_8B, ModelPlatform.LOCAL))
+
         if hasattr(config, 'MODEL_ALETHEIA_3B'):
             models.append((config.MODEL_ALETHEIA_3B, ModelPlatform.LOCAL))
             
@@ -500,9 +499,7 @@ class ChatbotGUI:
         for model_name, platform in models:
             # Create friendly display name
             display_name = model_name.split('/')[-1] if '/' in model_name else model_name
-            if "DarkIdol" in display_name:
-                display_name = "DarkIdol 8B (Uncensored)"
-            elif "Aletheia" in display_name:
+            if "Aletheia" in display_name:
                 display_name = "Aletheia 3B (Fast)"
                 
             model_listbox.insert(self.tk.END, display_name)

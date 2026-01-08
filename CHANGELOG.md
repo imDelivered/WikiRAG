@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.3.0] - 2026-01-08
 
+### Fixed
+- **HuggingFace Hub Compatibility**: Fixed crash `unexpected keyword argument 'tqdm_class'` by removing the deprecated argument in `model_manager.py`.
+
 ### Changed
 - **Project Rename**: Renamed project from "KiwixRAG" to "**VaultRAG**" to better reflect its function as a secure, offline knowledge vault.
 - **License**: Switched from MIT License to **AGPL v3** to ensure the project remains free and open-source, preventing proprietary closed-source forks.

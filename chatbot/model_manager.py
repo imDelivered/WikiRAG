@@ -213,12 +213,11 @@ class ModelManager:
             _notify_progress("downloading", 0.0, f"{model_name} ({size_str})")
             print(f"Downloading {model_name} ({size_str})...")
             
-            # Download with progress bar (tqdm is used by hf_hub internally)
+            # Download with default progress bar (terminal only)
             path = hf_hub_download(
                 repo_id=repo_id, 
                 filename=selected_file, 
-                local_dir=model_dir,
-                tqdm_class=ProgressTqdm
+                local_dir=model_dir
             )
             
             _notify_progress("ready", 1.0, size_str)

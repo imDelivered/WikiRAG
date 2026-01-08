@@ -35,7 +35,7 @@ chmod +x setup.sh
 > - Creates a `krag` command system-wide
 
 **Step 2: Add Models and Data**
-- **Models**: The system will automatically download the required GGUF models (DarkIdol 8B, Aletheia 3B) to the `shared_models/` directory on first run.
+- **Models**: The system will automatically download the required GGUF model (Aletheia 3B) to the `shared_models/` directory on first run.
 - **Data (ZIM)**: Download a ZIM file (e.g., from [Kiwix](https://library.kiwix.org/)) and place it in the project root. (e.g., `wikipedia_en_all_maxi_2025-08.zim`).
 
 **Step 3: Start the chatbot**
@@ -57,7 +57,7 @@ This tool allows you to safely remove the virtual environment, models, and cache
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ • Local AI: Runs GGUF models (DarkIdol 8B) locally                          │
+│ • Local AI: Runs GGUF models (Aletheia 3B) locally                          │
 │ • RAG: Retrieves facts from ZIM files                                       │
 │ • Multi-Joint Architecture: Uses specialized small models for reasoning     │
 │ • Just-In-Time Indexing: No long pre-indexing wait; indexes on-the-fly      │
@@ -74,7 +74,7 @@ VaultRAG uses a **Local Multi-Joint Architecture**:
 2.  **Retrieval**: Searches the ZIM file using a hybrid of Keyword (BM25-like) and Semantic (Embeddings) search.
 3.  **Joint 2 (Scoring)**: Reads candidate articles and scores them for relevance.
 4.  **Joint 3 (Filtering)**: Extracts the exact paragraphs containing the answer.
-5.  **Generation**: The main Chat Model (DarkIdol 8B) synthesizes the answer from the retrieved facts.
+5.  **Generation**: The main Chat Model (Aletheia 3B) synthesizes the answer from the retrieved facts.
 
 **VRAM Optimization**: To run on consumer GPUs (e.g. 12GB VRAM), the system intelligently loads and unloads models as needed to prevent Out-Of-Memory errors.
 
