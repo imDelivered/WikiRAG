@@ -376,12 +376,13 @@ class ZIMCreator:
         print(f"\n[INFO] Creating ZIM file: {self.output_path}")
         print(f"[INFO] Documents: {len(self.documents)}")
         
-        # Create ZIM
-        with Creator(self.output_path) as creator:
-            # Set metadata
-            creator.config_indexing(True, "en")
-            creator.set_mainpath("A/index")
-            
+        # Create and configure BEFORE entering context manager
+        creator = Creator(self.output_path)
+        creator.config_indexing(True, "en")
+        creator.set_mainpath("A/index")
+        
+        # Enter context manager to start writing
+        with creator:
             # Add homepage
             homepage = ZIMHomePage(self.title, self.documents)
             creator.add_item(homepage)
