@@ -1,3 +1,22 @@
+
+# Hermit - Offline AI Chatbot for Wikipedia & ZIM Files
+# Copyright (C) 2026 Hermit-AI, Inc.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 import os
 import sys
 import shutil
@@ -147,24 +166,9 @@ class RAGSystem:
         # JIT Cache: {(zim_path, article_path): (chunks, embeddings)}
         self.jit_cache = {}
         
-        # EXPERIMENTAL: Online Mode
-        self.web_retriever = None
-        self.online_mode = False
+        # JIT Cache: {(zim_path, article_path): (chunks, embeddings)}
+        self.jit_cache = {}
 
-    def toggle_online_mode(self, enabled: bool):
-        """Enable or disable experimental online mode."""
-        self.online_mode = enabled
-        if enabled and not self.web_retriever:
-            try:
-                from chatbot.web_rag import WebRetriever
-                self.web_retriever = WebRetriever()
-                print("Online mode ENABLED: WebRetriever initialized.")
-            except Exception as e:
-                print(f"Failed to initialize WebRetriever: {e}")
-                self.online_mode = False
-        else:
-             print(f"Online mode set to: {enabled}")
-        
     def load_resources(self):
         """Load models and indices if they exist."""
         print(f"Loading encoder: {self.model_name}...")
@@ -345,8 +349,7 @@ class RAGSystem:
             extra_terms: Additional search terms to force into the pipeline (used in rebound)
             mode: Operational mode (e.g., "FACTUAL", "CODE") to guide joint reasoning
         """
-        if self.online_mode and self.web_retriever:
-            return self.retrieve_web(query, top_k)
+
 
         debug_print("=" * 70)
         debug_print(f"RETRIEVE CALLED: query='{query}', top_k={top_k}")
@@ -856,83 +859,6 @@ class RAGSystem:
         debug_print("=" * 70)
         return results
 
-    def retrieve_web(self, query: str, top_k: int = 5) -> List[Dict]:
-        """Experimental Online Retrieval Pipeline."""
-        print(f" ONLINE MODE: Searching the web for '{query}'...")
-        
-        # 1. Search
-        search_results = self.web_retriever.search(query, max_results=5)
-        if not search_results:
-            return []
-            
-        print(f"Found {len(search_results)} links. Scraping content safely...")
-        
-        # 2. Scrape & Chunk
-        self.jit_cache = {}
-        self.faiss_index = None # Reset index
-        self.doc_chunks = []
-        self.documents = []
-        self.indexed_paths = set()
-        
-        chunk_count = 0
-        
-        for res in search_results:
-            url = res.get('href')
-            title = res.get('title')
-            
-            try:
-                # Scrape safely
-                text = self.web_retriever.scrape_url_sandboxed(url)
-                if not text or len(text) < 100:
-                    continue
-                    
-                chunks = TextProcessor.chunk_text(text)
-                if chunks:
-                    # Index immediately (JIT style)
-                    import torch
-                    device = "cuda" if torch.cuda.is_available() else "cpu"
-                    if not self.encoder:
-                        self.encoder = SentenceTransformer(self.model_name, device=device)
-                        
-                    embeddings = self.encoder.encode(chunks, device=device, show_progress_bar=False, convert_to_numpy=True)
-                    
-                    if self.faiss_index is None:
-                         dimension = embeddings.shape[1]
-                         self.faiss_index = faiss.IndexFlatL2(dimension)
-                    
-                    self.faiss_index.add(embeddings.astype('float32'))
-                    self.doc_chunks.extend(chunks)
-                    for _ in chunks:
-                        self.documents.append({
-                            'title': title,
-                            'path': url,
-                            'source_zim': 'WEB'
-                        })
-                    
-                    chunk_count += len(chunks)
-                    print(f"  Scraped & Indexed: {title[:30]}... ({len(chunks)} chunks)")
-                    
-            except Exception as e:
-                debug_print(f"Failed to process {url}: {e}")
-                
-        if chunk_count == 0:
-            return []
-            
-        # 3. Dense Retrieval on the new web index
-        print(f"Retrieving relevant chunks from {chunk_count} web segments...")
-        q_emb = self.encoder.encode([query]).astype('float32')
-        D, I = self.faiss_index.search(q_emb, top_k)
-        
-        results = []
-        for i, idx in enumerate(I[0]):
-            if idx != -1 and idx < len(self.doc_chunks):
-                results.append({
-                    'text': self.doc_chunks[idx],
-                    'metadata': self.documents[idx],
-                    'score': float(D[0][i])
-                })
-                
-        return results
 
     def search_by_title(self, query: str, zim_path: str = None, full_text: bool = False) -> List[Dict]:
         """Fast fallback: Search by title using ZIM's internal index (supports multiple ZIMs)."""

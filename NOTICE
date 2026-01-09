@@ -1,0 +1,43 @@
+Hermit (formerly VaultRAG)
+Copyright (C) 2026 Hermit-AI, Inc.
+All Rights Reserved.
+
+This product is licensed under the GNU Affero General Public License v3.0 (AGPL v3).
+See the LICENSE file for the full text.
+
+THIRD-PARTY SOFTWARE NOTICES
+----------------------------
+
+This product includes software developed by third parties, including:
+
+1. llama-cpp-python
+   License: MIT License
+   Copyright (c) 2023 Andrei Betlen
+
+2. sentence-transformers
+   License: Apache License 2.0
+   Copyright (c) 2019 UKPLab
+
+3. faiss
+   License: MIT License
+   Copyright (c) Facebook, Inc. and its affiliates.
+
+4. rank_bm25
+   License: Apache License 2.0
+   Copyright (c) 2019 Dorian Brown
+
+5. Beautiful Soup 4
+   License: MIT License
+   Copyright (c) 2004-2023 Leonard Richardson
+
+6. Hugging Face Hub
+   License: Apache License 2.0
+   Copyright (c) 2020-present Hugging Face, Inc.
+
+AI MODELS
+---------
+This application downloads and runs neural network models in the GGUF format 
+from Hugging Face. These models are subject to their own respective licenses, 
+typically ensuring freedom of research and commercial use (e.g., Apache 2.0, 
+MIT, or Llama Community License). Users are responsible for complying with 
+the licenses of any models they choose to download.

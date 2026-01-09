@@ -1,6 +1,9 @@
 # Hermit — Offline AI Chatbot for Wikipedia & ZIM Files
 
+**Copyright (C) 2026 Hermit-AI, Inc.**
+
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
+[![Commercial License](https://img.shields.io/badge/License-Commercial-purple.svg)](COMMERCIAL_LICENSE_OPTIONS.md)
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org/)
 [![CUDA Accelerated](https://img.shields.io/badge/CUDA-Accelerated-76B900.svg)](https://developer.nvidia.com/cuda-toolkit)
 
