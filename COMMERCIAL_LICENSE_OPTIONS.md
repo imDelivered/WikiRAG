@@ -28,4 +28,4 @@ For most researchers, hobbyists, and open-source developers, the AGPL v3 is perf
 For commercial inquiries, custom development, or licensing questions, please contact:
 
 **Hermit-AI, Inc.**  
-Email: licensing@hermit-ai.com
+Email: 0nspaceshipearth@proton.me
