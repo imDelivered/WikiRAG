@@ -25,6 +25,8 @@ import libzim
 
 from chatbot.rag import RAGSystem, TextProcessor
 from chatbot import config
+from chatbot.chat import build_messages, stream_chat
+from chatbot.models import Message
 
 class ChatbotCLI(cmd.Cmd):
     """Command-line interface for Hermit."""
@@ -42,10 +44,17 @@ class ChatbotCLI(cmd.Cmd):
         try:
             self.rag = RAGSystem()
             self.rag.load_resources()
+            
+            # Inject our RAG instance into the chat module so it doesn't try to reload it
+            import chatbot.chat
+            chatbot.chat._rag_system = self.rag
+            
             print("RAG System Ready.")
         except Exception as e:
             print(f"Error initializing RAG: {e}")
             print("Some functionality may be limited.")
+            
+        self.history = []
 
     def do_search(self, arg):
         """Search for articles: search <query>"""
@@ -208,6 +217,38 @@ class ChatbotCLI(cmd.Cmd):
     def do_exit(self, arg):
         """Exit the CLI."""
         return self.do_quit(arg)
+    
+    def default(self, line):
+        """Handle chat interactions."""
+        # Treat as chat
+        if not line: return
+        
+        # Check for empty lines or comments
+        if line.strip().startswith('#'): return
+
+        # Append to history FIRST (Critical for model to see the question)
+        self.history.append(Message(role="user", content=line))
+
+        print(f"\nThinking...")
+        try:
+            # Build messages
+            messages = build_messages(config.SYSTEM_PROMPT, self.history)
+            
+            # Stream response
+            print(f"Hermit: ", end="", flush=True)
+            full_response = ""
+            for chunk in stream_chat(self.model_name, messages):
+                print(chunk, end="", flush=True)
+                full_response += chunk
+            print("\n")
+            
+            # Update history with assistant response
+            self.history.append(Message(role="assistant", content=full_response))
+            
+        except KeyboardInterrupt:
+            print("\n[Interrupted]")
+        except Exception as e:
+            print(f"\nError: {e}")
         
     def do_EOF(self, arg):
         """Exit on Ctrl-D"""

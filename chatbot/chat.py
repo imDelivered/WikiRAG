@@ -279,14 +279,6 @@ def build_messages(system_prompt: str, history: List[Message], user_query: str =
                         context_text += f"- {fact}\n"
                     context_text += "======================================================\n"
 
-                context_text += f"\n\nCRITICAL INSTRUCTIONS:\n" \
-                                f"1. USE THE CONTEXT: Answer based ONLY on the provided context above.\n" \
-                                f"2. BE ACCURATE: Do not make up facts. If the answer isn't there, say 'I don't know' and STOP.\n" \
-                                f"3. VERIFY PREMISES: If the user asks a leading question (e.g., 'When did X do Y?') and the context says X *never* did Y, you MUST correct the premise. Do NOT assume the user is right.\n" \
-                                f"4. HANDLE CONFLICTS: If context has conflicting info, state BOTH sides. Do NOT debate yourself (e.g. 'But wait').\n" \
-                                f"5. NO REPETITION: State your answer ONCE and STOP. Do NOT add a summary or 'Therefore' conclusion.\n" \
-                                f"6. FOLLOW LAYOUT RULES: See the MODE instructions below for how to format your answer.\n" \
-                                f"7. IGNORE IRRELEVANT TEXT: The context may contain unrelated articles. Focus only on what answers the question."
                 debug_print(f"Context assembled: {len(context_text)} chars total")
             else:
                 debug_print("No results returned from RAG")
@@ -307,10 +299,23 @@ def build_messages(system_prompt: str, history: List[Message], user_query: str =
     # 3. Augment system prompt with Context AND Intent Instructions
     debug_print("-" * 60)
     debug_print("MESSAGE CONSTRUCTION PHASE")
-    final_system_prompt = system_prompt + intent.system_instruction
-    debug_print(f"Base system_prompt + intent instruction = {len(final_system_prompt)} chars")
+    
+    # Define instructions clearly
+    instructions = f"\n\nCRITICAL INSTRUCTIONS:\n" \
+                   f"1. USE THE CONTEXT: Answer based ONLY on the provided context below.\n" \
+                   f"2. BE ACCURATE: Do not make up facts. If the answer isn't there, say 'I don't know' and STOP.\n" \
+                   f"3. VERIFY PREMISES: If the user asks a leading question (e.g., 'When did X do Y?') and the context says X *never* did Y, you MUST correct the premise. Do NOT assume the user is right.\n" \
+                   f"4. HANDLE CONFLICTS: If context has conflicting info, state BOTH sides. Do NOT debate yourself (e.g. 'But wait').\n" \
+                   f"5. SYNTHESIZE: Combine the 'Verified Factual Details' and the 'Source' text to provide a complete, natural answer that directly addresses the user's question.\n" \
+                   f"6. KEEP IT CONCISE BUT COMPLETE: Do not be overly verbose, but ensure all relevant details answering 'How', 'Why', 'When', etc. are included.\n" \
+                   f"7. IGNORE IRRELEVANT TEXT: The context may contain unrelated articles. Focus only on what answers the question."
+
+    final_system_prompt = system_prompt + intent.system_instruction + instructions
+    
+    debug_print(f"Base system_prompt + intent instruction + instructions = {len(final_system_prompt)} chars")
+    
     if context_text:
-        final_system_prompt += context_text
+        final_system_prompt += "\n\n=== RETRIEVED CONTEXT ===\n" + context_text
         debug_print(f"Added context. Final system_prompt = {len(final_system_prompt)} chars")
     else:
         debug_print("No context to add")

@@ -53,4 +53,11 @@ ADAPTIVE_THRESHOLD = 4.0  # If max score is below this, trigger expansion
 # Global Context Window Configuration
 DEFAULT_CONTEXT_SIZE = 16384
 
+SYSTEM_PROMPT = (
+    "You are a helpful, thorough AI assistant. When provided with context, "
+    "you carefully read ALL of it to find the most accurate and complete answer. "
+    "You synthesize information from multiple sources when relevant and always verify "
+    "that your answer directly addresses what was asked."
+)
+
 
