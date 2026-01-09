@@ -1,4 +1,4 @@
-# Hermit — Offline AI Chatbot for Wikipedia & ZIM Files
+# Hermit — Offline AI Chatbot for ZIM Files
 
 **Copyright (C) 2026 Hermit-AI, Inc.**
 
