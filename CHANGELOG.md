@@ -14,10 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Configure via `config.py`: Set `API_MODE = True` and specify `API_BASE_URL`, `API_KEY`, and `API_MODEL_NAME`.
   - Polymorphic wrapper mimics `llama_cpp.Llama` interface for seamless integration.
   - Supports both streaming and blocking requests.
-- **Custom Themed Dialogs**: New `custom_dialogs.py` module provides theme-aware message boxes that match Hermit's dark/light mode.
-  - Replaces jarring native OS dialogs with styled alternatives.
-  - Includes `CustomMessageDialog` and `StyledMessageBox` wrapper classes.
-  - Auto-sizes based on message content with scrollable text for long messages.
 - **Shared Models Directory Scanning**: GUI now auto-detects manually downloaded GGUF files in the `shared_models/` directory.
   - No need to manually edit config files to use custom models.
   - Models appear in the model selection menu alongside config-defined models.
@@ -29,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Model Manager**: Enhanced `ensure_model_path()` with fast-path detection for direct `.gguf` filenames, improving load times for manually downloaded models.
 
 ### Improved
-- **GUI Theming**: Message boxes now respect the current theme (dark/light mode) for a consistent user experience.
+- **GUI Theming**: Message boxes now respect the current theme for a consistent user experience.
 - **Model Discovery**: More flexible model detection supports both HuggingFace repo IDs and local filenames.
 
 ## [2.4.0] - 2026-01-08
