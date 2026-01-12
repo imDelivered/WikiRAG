@@ -61,11 +61,13 @@ class UninstallerGUI:
             "hermit": [
                 Path("/usr/local/bin/hermit"),
                 Path("/usr/share/applications/hermit.desktop"),
-                Path("/usr/share/pixmaps/hermit.png")
+                Path("/usr/share/pixmaps/hermit.png"),
+                Path.home() / ".local/share/applications/hermit.desktop"
             ],
             "forge": [
                 Path("/usr/local/bin/forge"),
-                Path("/usr/share/applications/forge.desktop")
+                Path("/usr/share/applications/forge.desktop"),
+                Path.home() / ".local/share/applications/forge.desktop"
             ]
         }
         
@@ -81,9 +83,9 @@ class UninstallerGUI:
         self.create_checkbox("data", "Search Indexes (data/)", 
                            "Removes cached vectors and JIT indexes.")
         self.create_checkbox("hermit", "System Command (hermit)", 
-                           "Removes the /usr/local/bin/hermit wrapper (Requires Sudo).")
+                           "Checks /usr/local/bin, /usr/share/applications, and ~/.local/share.")
         self.create_checkbox("forge", "System Command (forge)", 
-                           "Removes the /usr/local/bin/forge wrapper (Requires Sudo).")
+                           "Checks /usr/local/bin, /usr/share/applications, and ~/.local/share.")
         
         # Protection Note
         protection_frame = ttk.LabelFrame(root, text="🛡️ Safety Protection", padding=10)
@@ -198,6 +200,18 @@ class UninstallerGUI:
                 for p in self.base_dir.rglob("__pycache__"):
                     shutil.rmtree(p)
             except:
+                pass
+        
+        # Refresh desktop database and icon cache if system files were removed
+        if "hermit" in selected_keys or "forge" in selected_keys:
+            try:
+                if shutil.which("update-desktop-database"):
+                    # Use sudo if we can, or just try running it
+                    subprocess.run(["sudo", "update-desktop-database"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                
+                if shutil.which("gtk-update-icon-cache"):
+                    subprocess.run(["sudo", "gtk-update-icon-cache", "-f", "/usr/share/icons/hicolor"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except Exception:
                 pass
 
         if errors:
