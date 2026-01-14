@@ -33,8 +33,9 @@ from chatbot.debug_utils import debug_print
 from chatbot.text_processing import TextProcessor
 
 class RAGSystem:
-    def __init__(self, index_dir: str = "data/indices", load_existing: bool = True):
+    def __init__(self, index_dir: str = "data/indices", zim_path: str = None, load_existing: bool = True):
         self.index_dir = index_dir
+        self.zim_path = zim_path
         self.encoder = None
         self.model_name = 'all-MiniLM-L6-v2'
         
@@ -517,6 +518,10 @@ class RAGSystem:
         """Search for articles by title using Semantic Title Index or ZIM path fallback."""
         import glob
         
+        # Use instance-level ZIM path if not provided
+        if not zim_path:
+            zim_path = self.zim_path
+
         if not zim_path:
             zims = glob.glob("*.zim")
             if not zims:

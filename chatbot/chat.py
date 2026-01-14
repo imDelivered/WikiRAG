@@ -156,11 +156,27 @@ def get_rag_system():
         debug_print("RAG system not initialized, checking for resources...")
         # Initialize only if index exists
         import os
-        if os.path.exists("data/index/faiss.index") or os.path.exists("wikipedia_en_all_maxi_2025-08.zim") or any(f.endswith(".zim") for f in os.listdir('.')):
+        import os
+        import glob
+        
+        # Find ZIM file
+        zim_file = None
+        # Check explicit config first (if we had one)
+        # Check current directory
+        zims = glob.glob("*.zim")
+        if zims:
+            zim_file = os.path.abspath(zims[0])
+        
+        if os.path.exists("data/index/faiss.index") or zim_file:
             try:
-                print("Initializing RAG system (Hybrid/Fast)...")
-                _rag_system = RAGSystem()
-                _rag_system.load_resources()
+                print(f"Initializing RAG system (Hybrid/Fast)...")
+                if zim_file:
+                    print(f"Found ZIM: {os.path.basename(zim_file)}")
+                else:
+                    print("Warning: No ZIM file found, relying on existing index only.")
+                    
+                _rag_system = RAGSystem(zim_path=zim_file)
+                # _rag_system.load_resources() # REMOVED: Method does not exist
                 debug_print("RAG system initialized successfully")
             except Exception as e:
                 print(f"Failed to load RAG: {e}")

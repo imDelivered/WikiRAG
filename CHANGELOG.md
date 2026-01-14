@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [2.7.1] - 2026-01-14
+
+### Fixed
+- **ZIM File Detection**: Fixed a critical bug where the RAG system failed to detect ZIM files because it was looking for a non-existent method (`load_resources`).
+- **Path Resolution**: The chatbot now robustly auto-detects `.zim` files in the installation directory and passes the absolute path to the retrieval system, ensuring knowledge base access works reliably.
+
 ## [2.7.0] - 2026-01-14
 
 ### Added
