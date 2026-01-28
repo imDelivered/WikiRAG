@@ -424,6 +424,7 @@ class ChatbotGUI:
             self.chat_display.see(self.tk.END)
             
             # Start animation
+            self.chat_display.tag_raise("loading_content_text")
             self._animate_loading_pulse()
             
         self.root.after(0, _show)
@@ -558,6 +559,7 @@ class ChatbotGUI:
         
         # Target the bubble text tag instead of input_entry
         self.chat_display.tag_config("loading_content_text", foreground=pulse_color)
+        self.chat_display.tag_raise("loading_content_text")
         
         # Schedule next frame (60ms for smooth animation)
         self.loading_animation_id = self.root.after(60, self._animate_loading_pulse)
