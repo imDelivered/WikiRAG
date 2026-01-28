@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     -   Previously, the system unloaded 3B to load 1.5B for every background task, causing significant latency.
     -   Now, the 3B model stays loaded ~100% of the time.
 -   **Impact**:
-    -   Drastically reduced query latency (from ~30s to ~5s on mid-range GPUs).
+    -   Drastically reduced query latency
     -   Improved orchestration intelligence (3B > 1.5B).
     -   Stabilized VRAM usage.
 
