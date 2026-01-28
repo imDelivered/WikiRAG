@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+## [3.2.0] - 2026-01-27
 
+### Major Update: Robust RAG & Large Model Support
+- **Updated Default Model**: Switched default model to **Qwen 2.5 3B** (Llama-3.2-3B "Aletheia" references removed). This model offers superior instruction following and reasoning for RAG tasks compared to previous 3B defaults.
+- **RAG Architectural Fix (Hallucination Prevention)**:
+  - Removed "Optimistic Scoring" where the system hardcoded 100% confidence for any retrieved article.
+  - The system now ignores the initial retrieval score and relies on the Orchestrator's dynamic scoring. Low-relevance results now correctly trigger **Targeted Search** and **Query Expansion** loops instead of being accepted as "perfect matches."
+  - Fixed issue where "Mona Lisa" queries retrieved "Michelangelo" due to blind trust in the initial search guess.
+- **32B Model Support**:
+  - **Dynamic Context Window**: Removed the hardcoded 2048-token limit for large models. The system now respects the full context size (default 8192) for models of any size (32B+).
+  - **Memory Management**: Improved loading logic (`model_manager.py`) to prevent VRAM contention and ghost processes from blocking large model loads.
+- **Updated Setup**: `setup.sh` and `download_models.py` updated to pull Qwen 2.5 3B by default.
 ## [3.1.0] - 2026-01-21
 
 ### Major Architecture Upgrade
